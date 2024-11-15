@@ -6,6 +6,7 @@
     <title>3D Scene with Triangular Table and Chair</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js/examples/js/loaders/EXRLoader.js"></script>
 </head>
 <body>
     <script>
@@ -22,6 +23,22 @@
         renderer.setClearColor(0xadd8e6);  // Set background color to light blue
         document.body.appendChild(renderer.domElement);
 
+        /*
+        // Load and apply the EXR HDRI as background and environment
+        const loader = new THREE.EXRLoader();
+        loader.load('abandoned_workshop_4k.exr', (texture) => {
+            texture.mapping = THREE.EquirectangularReflectionMapping;
+
+            // Set the texture as the scene's background and environment
+            scene.background = texture;
+            scene.environment = texture;
+        });
+        */
+
+        // --- Load the Plane Texture ---
+        const textureLoader = new THREE.TextureLoader();
+        const TableTexture = textureLoader.load('woodtable.jpg'); // Update the path to your texture file
+
         // --- Table Dimensions ---
         const legHeight = 2.5;
 
@@ -35,7 +52,7 @@
 
         const extrudeSettings = { depth: 0.2, bevelEnabled: false };
         const tabletopGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-        const tabletopMaterial = new THREE.MeshLambertMaterial({ color: 0xc2b280 });
+        const tabletopMaterial = new THREE.MeshLambertMaterial({ map: TableTexture });
         const tabletop = new THREE.Mesh(tabletopGeometry, tabletopMaterial);
         tabletop.position.set(-2, legHeight, -1.5); // Center the tabletop on the scene
         tabletop.rotation.x = Math.PI / 2;          // Rotate to lay flat
@@ -89,22 +106,148 @@
 
         // --- Create the Chair ---
         const seatWidth = 1.5;
-        const seatHeight = 0.2;
+        const seatHeight = 0.1;
         const seatDepth = 1.5;
 
+        const seatTexture = textureLoader.load('seat.jpg');
+
         const seatGeometry = new THREE.BoxGeometry(seatWidth, seatHeight, seatDepth);
-        const seatMaterial = new THREE.MeshLambertMaterial({ color: 0x555555 });
+        const seatMaterial = new THREE.MeshLambertMaterial({ map: seatTexture });
         const seat = new THREE.Mesh(seatGeometry, seatMaterial);
-        seat.position.set(0, 1.5, -3); // Position chair next to the table
+        seat.position.set(0, 1.3, -3); // Position chair next to the table
         scene.add(seat);
 
+        // Chair backseat
+        const backseatWidth = 1.3;
+        const backseatHeight = 1;
+        const backseatDepth = 0.2;
+
+        const backseatGeometry = new THREE.BoxGeometry(backseatWidth, backseatHeight, backseatDepth);
+        const backseatMaterial = new THREE.MeshLambertMaterial({ map: seatTexture });
+        const backseat = new THREE.Mesh(backseatGeometry, backseatMaterial);
+        backseat.position.set(0, 2.2, -4); // Position chair next to the table
+        backseat.rotation.x = Math.PI / -15;
+        scene.add(backseat);
+
+        const backseatedgeWidth = 0.43;
+        const backseatedgeHeight = 0.1;
+        const backseaedgetDepth = 0.2;
+
+        const backseatedgeGeometry = new THREE.BoxGeometry(backseatedgeWidth, backseatedgeHeight, backseatDepth);
+        const backseatedgeMaterial = new THREE.MeshLambertMaterial({ map: seatTexture });
+        const backseatedge1 = new THREE.Mesh(backseatedgeGeometry, backseatedgeMaterial);
+        backseatedge1.position.set(0.435, 2.7, -4.106); // Position chair next to the table
+        backseatedge1.rotation.x = Math.PI / -15;
+        scene.add(backseatedge1);
+
+        const backseatedge2 = new THREE.Mesh(backseatedgeGeometry, backseatedgeMaterial);
+        backseatedge2.position.set(-0.435, 2.7, -4.106); // Position chair next to the table
+        backseatedge2.rotation.x = Math.PI / -15;
+        scene.add(backseatedge2);
+
+        // Chair legs
+        const chairlegGeometry = new THREE.BoxGeometry(0.1, 1.3, 0.1);
+        const chairlegMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+
+        const chairlegconnGeometry = new THREE.BoxGeometry(0.1, 1.4, 0.1);
+        const chairlegconnMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+
+        const chairunderlegGeometry = new THREE.BoxGeometry(0.1, 1.6, 0.1);
+        const chairunderlegMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+
+        const chairleg1 = new THREE.Mesh(chairlegGeometry, chairlegMaterial);
+        chairleg1.position.set(0.8, 0.6, -2.21); // Bottom-left corner
+        chairleg1.rotation.x = Math.PI / -15;
+        scene.add(chairleg1);
+
+        const chairleg2 = new THREE.Mesh(chairlegGeometry, chairlegMaterial);
+        chairleg2.position.set(0.8, 0.6, -3.79); 
+        chairleg2.rotation.x = Math.PI / 15;
+        scene.add(chairleg2);
+
+        const chairleg3 = new THREE.Mesh(chairlegGeometry, chairlegMaterial);
+        chairleg3.position.set(-0.8, 0.6, -2.21); 
+        chairleg3.rotation.x = Math.PI / -15;
+        scene.add(chairleg3);
+
+        const chairleg4 = new THREE.Mesh(chairlegGeometry, chairlegMaterial);
+        chairleg4.position.set(-0.8, 0.6, -3.79); 
+        chairleg4.rotation.x = Math.PI / 15;
+        scene.add(chairleg4);
+
+        // Chair connections
+        const chairlegconn12 = new THREE.Mesh(chairlegconnGeometry, chairlegconnMaterial);
+        chairlegconn12.position.set(0.8, 1.2, -3); 
+        chairlegconn12.rotation.x = Math.PI / 2;
+        scene.add(chairlegconn12);
+
+        const chairlegconn34 = new THREE.Mesh(chairlegconnGeometry, chairlegconnMaterial);
+        chairlegconn34.position.set(-0.8, 1.2, -3); 
+        chairlegconn34.rotation.x = Math.PI / 2;
+        scene.add(chairlegconn34);
+
+        const chairsidesupportGeometry = new THREE.BoxGeometry(0.1, 1.4, 0.1);
+        const chairsidesupportMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+
+        const chairsupport1 = new THREE.Mesh(chairsidesupportGeometry, chairsidesupportMaterial);
+        chairsupport1.position.set(0.8, 1, -3); 
+        chairsupport1.rotation.x = Math.PI / 2;
+        scene.add(chairsupport1);
+
+        const chairsupport2 = new THREE.Mesh(chairsidesupportGeometry, chairsidesupportMaterial);
+        chairsupport2.position.set(-0.8, 1, -3); 
+        chairsupport2.rotation.x = Math.PI / 2;
+        scene.add(chairsupport2);
+
+        const chairlegconnunder1 = new THREE.Mesh(chairunderlegGeometry, chairunderlegMaterial);
+        chairlegconnunder1.position.set(0.7, 1.2, -3.05); 
+        chairlegconnunder1.rotation.x = Math.PI / 2;
+        scene.add(chairlegconnunder1);
+
+        const chairlegconnunder2 = new THREE.Mesh(chairunderlegGeometry, chairunderlegMaterial);
+        chairlegconnunder2.position.set(-0.7, 1.2, -3.05); 
+        chairlegconnunder2.rotation.x = Math.PI / 2;
+        scene.add(chairlegconnunder2);
+
+        const chairunderfrontlegGeometry = new THREE.BoxGeometry(1.5, 0.1, 0.1);
+        const chairunderfrontlegMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+
+        const chairlegconnunder3 = new THREE.Mesh(chairunderfrontlegGeometry, chairunderfrontlegMaterial);
+        chairlegconnunder3.position.set(0, 1.2, -2.3); 
+        chairlegconnunder3.rotation.x = Math.PI / 2;
+        scene.add(chairlegconnunder3);
+
+        const chairbacksupportGeometry = new THREE.BoxGeometry(0.1, 1.6, 0.1);
+        const chairbacksupportMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+
+        const chairlegconnback1 = new THREE.Mesh(chairbacksupportGeometry, chairbacksupportMaterial);
+        chairlegconnback1.position.set(0.7, 2, -3.96); 
+        chairlegconnback1.rotation.x = Math.PI / -15;
+        scene.add(chairlegconnback1);
+
+        const chairlegconnback2 = new THREE.Mesh(chairbacksupportGeometry, chairbacksupportMaterial);
+        chairlegconnback2.position.set(-0.7, 2, -3.96); 
+        chairlegconnback2.rotation.x = Math.PI / -15;
+        scene.add(chairlegconnback2);
+
+        const chairtopGeometry = new THREE.BoxGeometry(1.5, 0.1, 0.1);
+        const chairtopMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+        const chairtop = new THREE.Mesh(chairtopGeometry, chairtopMaterial);
+        chairtop.position.set(0, 2.8, -4.13); 
+        chairtop.rotation.x = Math.PI / -15;
+        scene.add(chairtop);
+
+        // --- Load the Plane Texture ---
+        const floorTexture = textureLoader.load('laminate_floor_02_diff_4k.jpg'); // Update the path to your texture file
+
         // --- Add a Plane (Floor) ---
-        const planeGeometry = new THREE.PlaneGeometry(20, 20);
-        const planeMaterial = new THREE.MeshLambertMaterial({ color: 0xcdfac7d });
+        const planeGeometry = new THREE.PlaneGeometry(10, 10);
+        const planeMaterial = new THREE.MeshLambertMaterial({ map: floorTexture });
         const plane = new THREE.Mesh(planeGeometry, planeMaterial);
         plane.rotation.x = -Math.PI / 2;  // Rotate plane to be horizontal
         plane.position.y = 0;  // Position plane at y = 0
         scene.add(plane);
+        
 
         // --- Add Lights ---
         const ambientLight = new THREE.AmbientLight(0x404040, 2);
@@ -124,8 +267,11 @@
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;  // Enable damping for smoother rotation
         controls.dampingFactor = 0.1;
-        controls.minDistance = 5;  // Minimum zoom distance
-        controls.maxDistance = 20; // Maximum zoom distance
+        controls.minDistance = 0;  // Minimum zoom distance
+        controls.maxDistance = 50; // Maximum zoom distance
+        controls.enablePan = true; // Enable panning
+        controls.enableRotate = true; // Enable rotation
+        controls.enableZoom = true; // Enable zooming
 
         // --- Animation Loop ---
         function animate() {
