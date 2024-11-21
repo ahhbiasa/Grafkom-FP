@@ -9,7 +9,8 @@
     <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js/examples/js/loaders/EXRLoader.js"></script>
 </head>
 <body>
-    <script>
+    <script defer src="main.js"></script>
+    <!-- <script>
         // --- Set up Scene ---
         const scene = new THREE.Scene();
 
@@ -151,19 +152,33 @@
         backseat.rotation.x = Math.PI / -15;
         scene.add(backseat);
 
-        const backseatedgeWidth = 0.43;
-        const backseatedgeHeight = 0.1;
-        const backseaedgetDepth = 0.2;
 
-        const backseatedgeGeometry = new THREE.BoxGeometry(backseatedgeWidth, backseatedgeHeight, backseatDepth);
+        var sBSEshape = new THREE.Shape();
+        sBSEshape.moveTo(0, 0);
+        sBSEshape.lineTo(0.4, 0);
+        sBSEshape.lineTo(0.4, 0.01);
+        sBSEshape.lineTo(0, 0.01);
+        sBSEshape.lineTo(0, 0);
+
+        var sBSEextrudesettings = {
+            depth: 0.03,
+            bevelEnabled: true,
+            bevelSegments: 20,
+            bevelSize: 0.045,
+            bevelOffset: 0,
+            bevelThickness: 0.1,
+            curveSegments: 50 
+        };
+
+        const backseatedgeGeometry = new THREE.ExtrudeGeometry(sBSEshape, sBSEextrudesettings);
         const backseatedgeMaterial = new THREE.MeshLambertMaterial({ map: seatTexture });
         const backseatedge1 = new THREE.Mesh(backseatedgeGeometry, backseatedgeMaterial);
-        backseatedge1.position.set(0.435, 2.7, -4.1); // Position chair next to the table
+        backseatedge1.position.set(0.2, 2.7, -4.125); // Position chair next to the table
         backseatedge1.rotation.x = Math.PI / -15;
         scene.add(backseatedge1);
 
         const backseatedge2 = new THREE.Mesh(backseatedgeGeometry, backseatedgeMaterial);
-        backseatedge2.position.set(-0.435, 2.7, -4.1); // Position chair next to the table
+        backseatedge2.position.set(-0.6, 2.7, -4.125); // Position chair next to the table
         backseatedge2.rotation.x = Math.PI / -15;
         scene.add(backseatedge2);
 
@@ -309,6 +324,6 @@
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
         });
-    </script>
+    </script> -->
 </body>
 </html>
