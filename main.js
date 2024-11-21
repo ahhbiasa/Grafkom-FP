@@ -164,47 +164,55 @@ const createBackrestEdge = (x, y, z, rotationX) => {
 createBackrestEdge(0.2, 2.7, -4.1, Math.PI / -15);
 createBackrestEdge(-0.6, 2.7, -4.1, Math.PI / -15);
 
+// Shared geometry and material for chair legs
+const chairLegGeometry = new THREE.BoxGeometry(0.1, 1.3, 0.1);
+const chairLegMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+
+// Helper function to create a chair leg
+const createChairLeg = (x, y, z, rotationX) => {
+    const leg = new THREE.Mesh(chairLegGeometry, chairLegMaterial);
+    leg.position.set(x, y, z);
+    leg.rotation.x = rotationX;
+    scene.add(leg);
+};
+
+// Create and position chair legs
+createChairLeg(0.8, 0.6, -2.21, Math.PI / -15); // Bottom-left corner
+createChairLeg(0.8, 0.6, -3.79, Math.PI / 15);  // Bottom-right corner
+createChairLeg(-0.8, 0.6, -2.21, Math.PI / -15); // Top-left corner
+createChairLeg(-0.8, 0.6, -3.79, Math.PI / 15);  // Top-right corner
+
 
 // Chair legs
-const chairlegGeometry = new THREE.BoxGeometry(0.1, 1.3, 0.1);
-const chairlegMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+// Shared geometry and material for under chair connections
+const chairUnderLegGeometry = new THREE.BoxGeometry(0.1, 1.6, 0.1);
+const chairUnderLegMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
 
-const chairlegconnGeometry = new THREE.BoxGeometry(0.1, 1.4, 0.1);
-const chairlegconnMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+// Helper function to create under chair connections
+const createUnderChairConnection = (x, y, z) => {
+    const connection = new THREE.Mesh(chairUnderLegGeometry, chairUnderLegMaterial);
+    connection.position.set(x, y, z);
+    connection.rotation.x = Math.PI / 2;
+    scene.add(connection);
+};
 
-const chairunderlegGeometry = new THREE.BoxGeometry(0.1, 1.6, 0.1);
-const chairunderlegMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+// Create and position under chair connections
+createUnderChairConnection(0.7, 1.2, -3.05);  // Connection 1
+createUnderChairConnection(-0.7, 1.2, -3.05); // Connection 2
 
-const chairleg1 = new THREE.Mesh(chairlegGeometry, chairlegMaterial);
-chairleg1.position.set(0.8, 0.6, -2.21); // Bottom-left corner
-chairleg1.rotation.x = Math.PI / -15;
-scene.add(chairleg1);
+const chairLegConnGeometry = new THREE.BoxGeometry(0.1, 1.4, 0.1);
+const chairLegConnMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+// Helper function to create a chair leg connection
+const createChairLegConnection = (x, y, z) => {
+    const connection = new THREE.Mesh(chairLegConnGeometry, chairLegConnMaterial);
+    connection.position.set(x, y, z);
+    connection.rotation.x = Math.PI / 2;
+    scene.add(connection);
+};
 
-const chairleg2 = new THREE.Mesh(chairlegGeometry, chairlegMaterial);
-chairleg2.position.set(0.8, 0.6, -3.79); 
-chairleg2.rotation.x = Math.PI / 15;
-scene.add(chairleg2);
-
-const chairleg3 = new THREE.Mesh(chairlegGeometry, chairlegMaterial);
-chairleg3.position.set(-0.8, 0.6, -2.21); 
-chairleg3.rotation.x = Math.PI / -15;
-scene.add(chairleg3);
-
-const chairleg4 = new THREE.Mesh(chairlegGeometry, chairlegMaterial);
-chairleg4.position.set(-0.8, 0.6, -3.79); 
-chairleg4.rotation.x = Math.PI / 15;
-scene.add(chairleg4);
-
-// Chair connections
-const chairlegconn12 = new THREE.Mesh(chairlegconnGeometry, chairlegconnMaterial);
-chairlegconn12.position.set(0.8, 1.2, -3); 
-chairlegconn12.rotation.x = Math.PI / 2;
-scene.add(chairlegconn12);
-
-const chairlegconn34 = new THREE.Mesh(chairlegconnGeometry, chairlegconnMaterial);
-chairlegconn34.position.set(-0.8, 1.2, -3); 
-chairlegconn34.rotation.x = Math.PI / 2;
-scene.add(chairlegconn34);
+// Create and position chair leg connections
+createChairLegConnection(0.8, 1.2, -3);  // Connection between legs 1 and 2
+createChairLegConnection(-0.8, 1.2, -3); // Connection between legs 3 and 4
 
 const chairsidesupportGeometry = new THREE.BoxGeometry(0.1, 1.4, 0.1);
 const chairsidesupportMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
@@ -218,16 +226,6 @@ const chairsupport2 = new THREE.Mesh(chairsidesupportGeometry, chairsidesupportM
 chairsupport2.position.set(-0.8, 1, -3); 
 chairsupport2.rotation.x = Math.PI / 2;
 scene.add(chairsupport2);
-
-const chairlegconnunder1 = new THREE.Mesh(chairunderlegGeometry, chairunderlegMaterial);
-chairlegconnunder1.position.set(0.7, 1.2, -3.05); 
-chairlegconnunder1.rotation.x = Math.PI / 2;
-scene.add(chairlegconnunder1);
-
-const chairlegconnunder2 = new THREE.Mesh(chairunderlegGeometry, chairunderlegMaterial);
-chairlegconnunder2.position.set(-0.7, 1.2, -3.05); 
-chairlegconnunder2.rotation.x = Math.PI / 2;
-scene.add(chairlegconnunder2);
 
 const chairunderfrontlegGeometry = new THREE.BoxGeometry(1.5, 0.1, 0.1);
 const chairunderfrontlegMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
