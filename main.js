@@ -28,7 +28,7 @@ const textureLoader = new THREE.TextureLoader();
 const TableTexture = textureLoader.load('woodtable.jpg'); // Update the path to your texture file
 
 // --- Table Dimensions ---
-const legHeight = 2.5;
+const legHeight = 2.25;
 
 // --- Create the Trapezium Table Top ---
 var tableshape = new THREE.Shape();
@@ -45,7 +45,7 @@ var tableextrudeSettings = {
 const tabletopGeometry = new THREE.ExtrudeGeometry(tableshape, tableextrudeSettings);
 const tabletopMaterial = new THREE.MeshLambertMaterial({ map: TableTexture });
 const tabletop = new THREE.Mesh(tabletopGeometry, tabletopMaterial);
-tabletop.position.set(-2, legHeight, -1.5); // Center the tabletop on the scene
+tabletop.position.set(-2, 2.5, -1.5); // Center the tabletop on the scene
 tabletop.rotation.x = Math.PI / 2;          // Rotate to lay flat
 scene.add(tabletop);
 
@@ -55,57 +55,83 @@ const legMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
 
 // Position each leg at the corners of the trapezium tabletop
 const leg1 = new THREE.Mesh(legGeometry, legMaterial);
-leg1.position.set(-2, legHeight / 2, -1.5); // Bottom-left corner
+leg1.position.set(-1.75, legHeight / 2, -1.25); // Bottom-left corner
 scene.add(leg1);
 
 const leg2 = leg1.clone();
-leg2.position.set(2, legHeight / 2, -1.5); // Bottom-right corner
+leg2.position.set(1.75, legHeight / 2, -1.25); // Bottom-right corner
 scene.add(leg2);
 
 const leg3 = leg1.clone();
-leg3.position.set(1, legHeight / 2, 1.5); // Top-right corner
+leg3.position.set(0.75, legHeight / 2, 1.25); // Top-right corner
 scene.add(leg3);
 
 const leg4 = leg1.clone();
-leg4.position.set(-1, legHeight / 2, 1.5); // Top-left corner
+leg4.position.set(-0.75, legHeight / 2, 1.25); // Top-left corner
 scene.add(leg4);
 
 // --- Create Bars to Connect the Legs ---
-const barGeometry = new THREE.BoxGeometry(0.1, 0.1, 3.2); // Adjust the length as needed
+const barGeometry = new THREE.BoxGeometry(0.1, 0.1, 2.7); // Adjust the length as needed
 const barMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
 
-const frontbarGeometry = new THREE.BoxGeometry(0.1, 0.1, 2); // Adjust the length as needed
+const frontbarGeometry = new THREE.BoxGeometry(0.1, 0.1, 1.5); // Adjust the length as needed
 const frontbarMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+
+const backbarGeometry = new THREE.BoxGeometry(0.1, 0.1, 3.5); // Adjust the length as needed
+const backbarMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
 
 // Connect leg1 with leg4
 const bar1 = new THREE.Mesh(barGeometry, barMaterial);
-bar1.position.set(-1.5, 0.05, 0); // Adjust position to connect leg1 and leg4
-bar1.rotation.y = Math.PI / 10; // Rotate to align with the legs
+bar1.position.set(-1.25, 0.05, 0); // Adjust position to connect leg1 and leg4
+bar1.rotation.y = Math.PI / 8.2; // Rotate to align with the legs
 scene.add(bar1);
 
 // Connect leg4 with leg3
 const bar2 = new THREE.Mesh(frontbarGeometry, frontbarMaterial);
-bar2.position.set(0, 0.05, 1.5); // Adjust position to connect leg1 and leg4
+bar2.position.set(0, 0.05, 1.25); // Adjust position to connect leg1 and leg4
 bar2.rotation.y = Math.PI / 2; // Rotate to align with the legs
 scene.add(bar2);
 
 // Connect leg3 with leg2
 const bar3 = new THREE.Mesh(barGeometry, barMaterial);
-bar3.position.set(1.5, 0.05, 0); // Adjust position to connect leg1 and leg4
-bar3.rotation.y = Math.PI / -10; // Rotate to align with the legs
+bar3.position.set(1.25, 0.05, 0); // Adjust position to connect leg1 and leg4
+bar3.rotation.y = Math.PI / -8.2; // Rotate to align with the legs
 scene.add(bar3);
 
+// bar upperside
+const bar1up = new THREE.Mesh(barGeometry, barMaterial);
+bar1up.position.set(-1.25, legHeight-0.05, 0); // Adjust position to connect leg1 and leg4
+bar1up.rotation.y = Math.PI / 8.2; // Rotate to align with the legs
+scene.add(bar1up);
+
+// Connect leg4 with leg3
+const bar2up = new THREE.Mesh(frontbarGeometry, frontbarMaterial);
+bar2up.position.set(0, legHeight-0.05, 1.25); // Adjust position to connect leg1 and leg4
+bar2up.rotation.y = Math.PI / 2; // Rotate to align with the legs
+scene.add(bar2up);
+
+// Connect leg3 with leg2
+const bar3up = new THREE.Mesh(barGeometry, barMaterial);
+bar3up.position.set(1.25, legHeight-0.05, 0); // Adjust position to connect leg1 and leg4
+bar3up.rotation.y = Math.PI / -8.2; // Rotate to align with the legs
+scene.add(bar3up);
+
+const bar4up = new THREE.Mesh(backbarGeometry, backbarMaterial);
+bar4up.position.set(0, legHeight-0.05, -1.25); // Adjust position to connect leg1 and leg4
+bar4up.rotation.y = Math.PI / 2; // Rotate to align with the legs
+scene.add(bar4up);
+
 // Define geometry and material for the bar under the table
-const underBarGeometry = new THREE.BoxGeometry(3.5, 0.05, 0.1); // Adjust dimensions based on your table size
-const underBarMaterial = new THREE.MeshBasicMaterial({ color: 0x333333 }); // Dark color for the bar
+// const underBarGeometry = new THREE.BoxGeometry(3.5, 0.05, 0.1); // Adjust dimensions based on your table size
+// const underBarMaterial = new THREE.MeshBasicMaterial({ color: 0x333333 }); // Dark color for the bar
 
-// Create and position the bar
-const underBar = new THREE.Mesh(underBarGeometry, underBarMaterial);
-underBar.position.set(0, 2.23, -1.3); // Adjust height (y position) to be close to the ground level, between the legs
-underBar.rotation.y = 0; // Set rotation if necessary to align with the legs
+// // Create and position the bar
+// const underBar = new THREE.Mesh(underBarGeometry, underBarMaterial);
+// underBar.position.set(0, 2.23, -1.3); // Adjust height (y position) to be close to the ground level, between the legs
+// underBar.rotation.y = 0; // Set rotation if necessary to align with the legs
 
-// Add the bar to the scene
-scene.add(underBar);
+// // Add the bar to the scene
+// scene.add(underBar);
 
 // Define shared settings and texture
 const extrudeSettings = {
