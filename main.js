@@ -95,6 +95,18 @@ bar3.position.set(1.5, 0.05, 0); // Adjust position to connect leg1 and leg4
 bar3.rotation.y = Math.PI / -10; // Rotate to align with the legs
 scene.add(bar3);
 
+// Define geometry and material for the bar under the table
+const underBarGeometry = new THREE.BoxGeometry(3.5, 0.05, 0.1); // Adjust dimensions based on your table size
+const underBarMaterial = new THREE.MeshBasicMaterial({ color: 0x333333 }); // Dark color for the bar
+
+// Create and position the bar
+const underBar = new THREE.Mesh(underBarGeometry, underBarMaterial);
+underBar.position.set(0, 2.23, -1.3); // Adjust height (y position) to be close to the ground level, between the legs
+underBar.rotation.y = 0; // Set rotation if necessary to align with the legs
+
+// Add the bar to the scene
+scene.add(underBar);
+
 // Define shared settings and texture
 const extrudeSettings = {
     depth: 0.05,
