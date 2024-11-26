@@ -38,16 +38,66 @@ tableshape.lineTo(3, 3);        // Draw the right slanted edge
 tableshape.lineTo(1, 3);        // Draw the top edge
 tableshape.lineTo(0, 0);        // Draw the left slanted edge to close the shape
 
-var tableextrudeSettings = { 
-    depth: 0.25,
-    bevelEnabled: false 
+
+// --- Create the Trapezium Table Top ---
+var tableshape = new THREE.Shape();
+tableshape.moveTo(0, 0);        // Start at one corner of the trapezium
+tableshape.lineTo(4, 0);        // Draw the bottom edge
+tableshape.lineTo(3, 3);        // Draw the right slanted edge
+tableshape.lineTo(1, 3);        // Draw the top edge
+tableshape.lineTo(0, 0);        // Draw the left slanted edge to close the shape
+
+// Define the inset trapezium (scaled down by a margin) for the inner part of the table
+const insetMargin = 0.2; // The margin between the main shape and the inset
+const inset = new THREE.Path();
+inset.moveTo(insetMargin, insetMargin);                           // Bottom-left (inner)
+inset.lineTo(4 - insetMargin, insetMargin);                       // Bottom-right (inner)
+inset.lineTo(3 - insetMargin, 3 - insetMargin);                   // Top-right (inner)
+inset.lineTo(1 + insetMargin, 3 - insetMargin);                   // Top-left (inner)
+inset.lineTo(insetMargin, insetMargin);                           // Close the inset
+
+// Add the inset as a hole to the main shape
+tableshape.holes.push(inset);
+
+// --- Extrude the Outer Edge Higher (Perimeter) ---
+var tableextrudeSettingsOuter = { 
+    depth: 0.33,         // Slightly raise the perimeter only (outer part)
+    bevelEnabled: false // No bevels for sharp edges
 };
-const tabletopGeometry = new THREE.ExtrudeGeometry(tableshape, tableextrudeSettings);
-const tabletopMaterial = new THREE.MeshLambertMaterial({ map: TableTexture });
-const tabletop = new THREE.Mesh(tabletopGeometry, tabletopMaterial);
-tabletop.position.set(-2, 2.5, -1.5); // Center the tabletop on the scene
-tabletop.rotation.x = Math.PI / 2;          // Rotate to lay flat
-scene.add(tabletop);
+
+// Create the extruded geometry for the outer part
+const outerGeometry = new THREE.ExtrudeGeometry(tableshape, tableextrudeSettingsOuter);
+const outerMaterial = new THREE.MeshLambertMaterial({ map: TableTexture }); // Replace with your texture if needed
+const outerTable = new THREE.Mesh(outerGeometry, outerMaterial);
+
+// Position and rotate the outer perimeter (raised edge)
+outerTable.position.set(-2, 2.4, -1.5); // Adjust position to align with the scene
+outerTable.rotation.x = Math.PI / 2;    // Lay flat on the X-axis
+scene.add(outerTable);
+
+// --- Create the Flat Inner Part of the Table ---
+var coverShape = new THREE.Shape();
+coverShape.moveTo(insetMargin, insetMargin);        // Start at the inner corner
+coverShape.lineTo(4 - insetMargin, insetMargin);    // Draw the bottom edge
+coverShape.lineTo(3 - insetMargin, 3 - insetMargin); // Draw the right slanted edge
+coverShape.lineTo(1 + insetMargin, 3 - insetMargin); // Draw the top edge
+coverShape.lineTo(insetMargin, insetMargin);        // Draw the left slanted edge to close the shape
+
+// Define a thin extrusion for the cover (just to close the top)
+var coverExtrudeSettings = { 
+    depth: 0.15,         // A thin cover just to close the top without affecting the depth
+    bevelEnabled: false // No bevels for sharp edges
+};
+
+// Create the extruded geometry for the cover (the thin top layer to close the hole)
+const coverGeometry = new THREE.ExtrudeGeometry(coverShape, coverExtrudeSettings);
+const coverMaterial = new THREE.MeshLambertMaterial({ map: TableTexture }); // Replace with your texture if needed
+const coverTable = new THREE.Mesh(coverGeometry, coverMaterial);
+
+// Position and rotate the cover (thin layer on top)
+coverTable.position.set(-2, 2.4, -1.5); // Same position to align with the scene
+coverTable.rotation.x = Math.PI / 2;    // Lay flat on the X-axis
+scene.add(coverTable);
 
 // --- Create the Table Legs ---
 const legGeometry = new THREE.BoxGeometry(0.1, legHeight, 0.1);
