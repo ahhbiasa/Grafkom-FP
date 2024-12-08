@@ -338,73 +338,240 @@ backWall.position.set(0, 5, 27); // Center it on the Z-axis
 backWall.rotation.y = Math.PI; // Rotate to face the opposite direction
 scene.add(backWall);
 
-// Glass Wall
-const leftWall = new THREE.Mesh(LRwallGeometry, LRwallMaterial);
-leftWall.position.set(-25, 5, 0); // Position on the negative X-axis
-leftWall.rotation.y = Math.PI / 2; // Rotate to face inward
-scene.add(leftWall);
-
 // Right Wall
 const rightWall = new THREE.Mesh(LRwallGeometry, LRwallMaterial);
 rightWall.position.set(25, 5, 0); // Position on the positive X-axis
 rightWall.rotation.y = -Math.PI / 2; // Rotate to face inward
 scene.add(rightWall);
 
+// --- Add Left Wall with a Centered Door ---
+const wallWidth = 55; // Total width of the wall
+const wallHeight = 10; // Height of the wall
+const doorWidth = 13; // Width of the door
+const doorHeight = 7; // Height of the door
+
+// Define the wall shape
+const wallShape = new THREE.Shape();
+wallShape.moveTo(-wallWidth / 2, 0); // Start bottom-left
+wallShape.lineTo(wallWidth / 2, 0); // Bottom-right
+wallShape.lineTo(wallWidth / 2, wallHeight); // Top-right
+wallShape.lineTo(-wallWidth / 2, wallHeight); // Top-left
+wallShape.lineTo(-wallWidth / 2, 0); // Close the shape
+
+// Define the door shape (hole)
+const doorShape = new THREE.Path();
+const doorX = 0; // Center the door on the X-axis
+doorShape.moveTo(doorX - doorWidth / 2, 0); // Bottom-left of the door
+doorShape.lineTo(doorX + doorWidth / 2, 0); // Bottom-right of the door
+doorShape.lineTo(doorX + doorWidth / 2, doorHeight); // Top-right of the door
+doorShape.lineTo(doorX - doorWidth / 2, doorHeight); // Top-left of the door
+doorShape.lineTo(doorX - doorWidth / 2, 0); // Close the shape
+
+// Combine the wall shape with the door hole
+wallShape.holes.push(doorShape);
+
+// Create the wall geometry with the door hole
+const wallGeometry = new THREE.ExtrudeGeometry(wallShape, {
+  depth: 0.1, // Thickness of the wall
+  bevelEnabled: false,
+});
+
+// Create the wall material
+const wallMaterial = new THREE.MeshLambertMaterial({ color: 0xFFFDD0 });
+
+// Create the left wall mesh
+const leftWallWithDoor = new THREE.Mesh(wallGeometry, wallMaterial);
+leftWallWithDoor.position.set(-25, 0, 0); // Position on the negative X-axis
+leftWallWithDoor.rotation.y = Math.PI / 2; // Rotate to face inward
+scene.add(leftWallWithDoor);
+
 // ------------------------------------------ Doors ------------------------------------------ //
 
-// --- Add Glass Doors on Left Wall ---
-const glassDoorGeometry = new THREE.PlaneGeometry(4, 8); // Dimensions of the glass door (width x height)
+// Glass Door Geometry and Material
+const glassDoorGeometry = new THREE.PlaneGeometry(doorWidth, doorHeight); // Dimensions match the hole
 const glassDoorMaterial = new THREE.MeshLambertMaterial({
     color: 0x87CEEB, // Light blue for glass
     transparent: true, // Enable transparency
     opacity: 0.4, // Set transparency level (0: fully transparent, 1: opaque)
 });
+const centerHoleRadius = 0.5; // Radius of the hole in the center of the glass
 
 // Glass Door
 const glassDoor = new THREE.Mesh(glassDoorGeometry, glassDoorMaterial);
-glassDoor.position.set(-24, 4, 0); // Position on the left wall (aligned with its center)
+glassDoor.position.set(-25, doorHeight / 2, 0); // Centered in the hole
 glassDoor.rotation.y = Math.PI / 2; // Rotate to align with the left wall
 scene.add(glassDoor);
 
-// --- Optional: Add a Door Frame ---
-const doorFrameMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 }); // Brown for the door frame
+// --- Add a Door Frame ---
+const doorFrameMaterial = new THREE.MeshLambertMaterial({ color: 0xFFFFFF }); // Brown for the door frame
 const frameThickness = 0.2;
 
+// external frame
 // Top Frame
 const topFrame = new THREE.Mesh(
-    new THREE.BoxGeometry(4.2, frameThickness, frameThickness), 
+    new THREE.BoxGeometry(doorWidth + frameThickness, frameThickness, frameThickness), 
     doorFrameMaterial
 );
-topFrame.position.set(-27.5, 8.1, 0); // Above the glass door
+topFrame.position.set(-25, doorHeight + frameThickness / 2, 0); // Top of the door
 topFrame.rotation.y = Math.PI / 2;
 scene.add(topFrame);
 
-// Bottom Frame
-const bottomFrame = new THREE.Mesh(
-    new THREE.BoxGeometry(4.2, frameThickness, frameThickness), 
-    doorFrameMaterial
-);
-bottomFrame.position.set(-27.5, -0.1, 0); // Below the glass door
-bottomFrame.rotation.y = Math.PI / 2;
-scene.add(bottomFrame);
-
 // Left Frame
 const leftFrame = new THREE.Mesh(
-    new THREE.BoxGeometry(frameThickness, 8.2, frameThickness), 
+    new THREE.BoxGeometry(frameThickness, doorHeight + frameThickness, frameThickness), 
     doorFrameMaterial
 );
-leftFrame.position.set(-27.5, 4, -2.1); // Left side of the glass door
+leftFrame.position.set(-25, doorHeight / 2, -doorWidth / 2 - frameThickness / 2); // Left side of the door
 leftFrame.rotation.y = Math.PI / 2;
 scene.add(leftFrame);
 
 // Right Frame
 const rightFrame = new THREE.Mesh(
-    new THREE.BoxGeometry(frameThickness, 8.2, frameThickness), 
+    new THREE.BoxGeometry(frameThickness, doorHeight + frameThickness, frameThickness), 
     doorFrameMaterial
 );
-rightFrame.position.set(-27.5, 4, 2.1); // Right side of the glass door
+rightFrame.position.set(-25, doorHeight / 2, doorWidth / 2 + frameThickness / 2); // Right side of the door
 rightFrame.rotation.y = Math.PI / 2;
 scene.add(rightFrame);
+
+// intenal frame
+// Top Frame
+const topinFrame = new THREE.Mesh(
+    new THREE.BoxGeometry(doorWidth + frameThickness, frameThickness, frameThickness), 
+    doorFrameMaterial
+);
+topinFrame.position.set(-25, doorHeight + frameThickness / 2.5 - 0.6, 0); // Top of the door
+topinFrame.rotation.y = Math.PI / 2;
+scene.add(topinFrame);
+
+// Left Frame
+const leftinFrame = new THREE.Mesh(
+    new THREE.BoxGeometry(frameThickness, doorHeight + frameThickness, frameThickness), 
+    doorFrameMaterial
+);
+leftinFrame.position.set(-25, doorHeight / 2, -doorWidth / 2 - frameThickness / 2 + 1); // Left side of the door
+leftinFrame.rotation.y = Math.PI / 2;
+scene.add(leftinFrame);
+
+// Right Frame
+const rightinFrame = new THREE.Mesh(
+    new THREE.BoxGeometry(frameThickness, doorHeight + frameThickness, frameThickness), 
+    doorFrameMaterial
+);
+rightinFrame.position.set(-25, doorHeight / 2, doorWidth / 2 + frameThickness / 2 - 1); // Right side of the door
+rightinFrame.rotation.y = Math.PI / 2;
+scene.add(rightinFrame);
+
+// ---- frame brown -------
+const FrameMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 }); 
+// Top Frame
+const topthFrame = new THREE.Mesh(
+    new THREE.BoxGeometry(doorWidth + frameThickness - 2.2, frameThickness*7, frameThickness), 
+    FrameMaterial
+);
+topthFrame.position.set(-25, doorHeight - 0.8 + frameThickness / 2.5 - 0.5, 0); // Top of the door
+topthFrame.rotation.y = Math.PI / 2;
+scene.add(topthFrame);
+
+// Left Frame
+const leftthFrame = new THREE.Mesh(
+    new THREE.BoxGeometry(frameThickness + 2, doorHeight + frameThickness - 0.75, frameThickness), 
+    FrameMaterial
+);
+leftthFrame.position.set(-25, doorHeight / 2 - 0.3, -doorWidth / 2 - frameThickness / 2 + 2.2); // Left side of the door
+leftthFrame.rotation.y = Math.PI / 2;
+scene.add(leftthFrame);
+
+// Right Frame
+const rightthFrame = new THREE.Mesh(
+    new THREE.BoxGeometry(frameThickness + 2, doorHeight + frameThickness - 0.75, frameThickness), 
+    FrameMaterial
+);
+rightthFrame.position.set(-25, doorHeight / 2 - 0.3, doorWidth / 2 + frameThickness / 2 - 2.2); // Right side of the door
+rightthFrame.rotation.y = Math.PI / 2;
+scene.add(rightthFrame);
+
+// --- Add Glass Door with a Rectangular Center Hole ---
+const holeWidth = 11;
+const fixedBottom = -3.5;
+const dynamicTop = 3;
+
+const glassShape = new THREE.Shape();
+glassShape.moveTo(-doorWidth / 2, -doorHeight / 2);
+glassShape.lineTo(doorWidth / 2, -doorHeight / 2);
+glassShape.lineTo(doorWidth / 2, doorHeight / 2);
+glassShape.lineTo(-doorWidth / 2, doorHeight / 2);
+glassShape.lineTo(-doorWidth / 2, -doorHeight / 2);
+
+const centerHole = new THREE.Path();
+centerHole.moveTo(-holeWidth / 2, fixedBottom);
+centerHole.lineTo(holeWidth / 2, fixedBottom);
+centerHole.lineTo(holeWidth / 2, dynamicTop);
+centerHole.lineTo(-holeWidth / 2, dynamicTop);
+centerHole.lineTo(-holeWidth / 2, fixedBottom);
+glassShape.holes.push(centerHole);
+
+// Create the glass door geometry with the rectangular hole
+const glassGeometry = new THREE.ExtrudeGeometry(glassShape, {
+    depth: 0.1, // Thickness of the glass
+    bevelEnabled: false,
+});
+
+// Create the glass material
+const glassMaterial = new THREE.MeshLambertMaterial({
+    color: 0x87CEEB, // Light blue for glass
+    transparent: true, // Enable transparency
+    opacity: 0.4, // Set transparency level (0: fully transparent, 1: opaque)
+});
+
+// Create the glass door mesh
+const glassDoorWithHole = new THREE.Mesh(glassGeometry, glassMaterial);
+glassDoorWithHole.position.set(-25, doorHeight / 2, 0); // Centered in the door hole
+glassDoorWithHole.rotation.y = Math.PI / 2; // Rotate to align with the left wall
+scene.add(glassDoorWithHole);
+
+
+// --- Add Two Glass Doors Inside the Rectangular Hole ---
+const glassThickness = 0.1
+// left door
+const leftglass = new THREE.Mesh(
+    new THREE.BoxGeometry(glassThickness + 3.2, doorHeight + glassThickness - 2, glassThickness), 
+    glassMaterial
+);
+leftglass.position.set(-25, doorHeight / 2 - 1, -doorWidth / 2 - glassThickness / 2 + 4.9); // Left side of the door
+leftglass.rotation.y = Math.PI / 2;
+scene.add(leftglass);
+
+// Right door
+const rightglass = new THREE.Mesh(
+    new THREE.BoxGeometry(glassThickness + 3.2, doorHeight + glassThickness - 2, glassThickness), 
+    glassMaterial
+);
+rightglass.position.set(-25, doorHeight / 2 - 1, doorWidth / 2 + glassThickness / 2 - 4.9); // Right side of the door
+rightglass.rotation.y = Math.PI / 2;
+scene.add(rightglass);
+
+// --- handles ----
+const handleMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 }); 
+// Left Frame
+const handleleft = new THREE.Mesh(
+    new THREE.BoxGeometry(frameThickness, doorHeight + frameThickness - 6, frameThickness), 
+    handleMaterial
+);
+handleleft.position.set(-25, doorHeight - 4, -doorWidth / 2 - frameThickness / 2 + 6.2); // Left side of the door
+handleleft.rotation.y = Math.PI / 2;
+scene.add(handleleft);
+
+// Right Frame
+const handleright = new THREE.Mesh(
+    new THREE.BoxGeometry(frameThickness, doorHeight + frameThickness - 6 , frameThickness), 
+    handleMaterial
+);
+handleright.position.set(-25, doorHeight - 4, doorWidth / 2 + frameThickness / 2 - 6.2); // Right side of the door
+handleright.rotation.y = Math.PI / 2;
+scene.add(handleright);
+
+
 
 // ------------------------------------------ Realistic TV ------------------------------------------ //
 
