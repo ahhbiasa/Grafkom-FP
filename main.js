@@ -406,6 +406,98 @@ rightFrame.position.set(-27.5, 4, 2.1); // Right side of the glass door
 rightFrame.rotation.y = Math.PI / 2;
 scene.add(rightFrame);
 
+// ------------------------------------------ Realistic TV ------------------------------------------ //
+
+// --- TV Border ---
+// Create a black border for the TV
+const tvBorderGeometry = new THREE.BoxGeometry(12, 5, 0.2); // Border dimensions
+const tvBorderMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 }); // Black border
+const tvBorder = new THREE.Mesh(tvBorderGeometry, tvBorderMaterial);
+tvBorder.castShadow = true;
+tvBorder.receiveShadow = true;
+
+// --- TV Screen ---
+// Create a slightly smaller dark gray screen
+const tvScreenGeometry = new THREE.BoxGeometry(11.3, 4.5, 0.1); // Screen dimensions
+const tvScreenMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 }); // Dark gray screen
+const tvScreen = new THREE.Mesh(tvScreenGeometry, tvScreenMaterial);
+
+tvBorder.position.y = 1.0;
+tvBorder.position.z = -0.38;
+tvScreen.castShadow = true; 
+tvScreen.receiveShadow = true; 
+
+// Nest the screen inside the border
+tvScreen.position.z = 0.06; // Slightly in front of the border
+tvBorder.add(tvScreen);
+
+
+// --- TV Stand ---
+// Create a vertical stand connecting the TV to the base
+const verticalSupportGeometry = new THREE.BoxGeometry(0.5, 5, 0.3); // Width, Height, Depth
+const verticalSupportMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 }); // Dark gray stand
+const verticalSupport = new THREE.Mesh(verticalSupportGeometry, verticalSupportMaterial);
+verticalSupport.position.set(0, -2.8, 0.5); // Centered below the TV
+verticalSupport.castShadow = true; 
+verticalSupport.receiveShadow = true;
+
+// Create the horizontal base for the stand
+const baseGeometry = new THREE.BoxGeometry(5, 0.2, 1); // Width, Height, Depth
+const baseMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 }); // Black base
+const base = new THREE.Mesh(baseGeometry, baseMaterial);
+base.position.set(0, -5.35, -0.5); // At the bottom
+base.castShadow = true; 
+base.receiveShadow = true;
+
+// --- Feet ---
+// Create two vertical supports and attach wheels at the bottom
+const supportMaterial = new THREE.MeshStandardMaterial({ color: 0x111111 });
+const verticalSupport1 = new THREE.Mesh(
+    new THREE.BoxGeometry(0.2, 7.5, 0.1),
+    supportMaterial
+);
+verticalSupport1.position.set(-0.8, -1.5, -0.5);
+verticalSupport1.castShadow = true;
+verticalSupport1.receiveShadow = true;
+
+const verticalSupport2 = new THREE.Mesh(
+    new THREE.BoxGeometry(0.2, 7.5, 0.1),
+    supportMaterial
+);
+verticalSupport2.position.set(0.8, -1.5, -0.5);
+verticalSupport2.castShadow = true;
+verticalSupport2.receiveShadow = true;
+
+// --- Horizontal Black Bar (Bracket) ---
+// Create a Horizontal bar to cover the vertical stand behind the TV
+const bracketGeometry = new THREE.BoxGeometry(2.5, 1.0 ,0.1); 
+const bracketMaterial = new THREE.MeshLambertMaterial({ color: 0x222222 }); 
+const tvBracket = new THREE.Mesh(bracketGeometry, bracketMaterial);
+
+// Position the bracket to align with the stand and TV
+tvBracket.position.set(0, 0.35, -0.15); // Adjust based on the TV's position
+tvBorder.add(tvBracket); // Attach the bracket to the TV group
+
+// --- Group the TV Components ---
+// Group the border, stand, base, and vertical supports
+const tvGroup = new THREE.Group();
+tvGroup.add(tvBorder);
+tvGroup.add(verticalSupport1);
+tvGroup.add(verticalSupport2);
+//tvGroup.add(tvBracket);
+tvGroup.add(base);
+
+// --- Rotate TV to Face the Table ---
+// Rotate the TV group to face the table (180 degrees along the Y-axis)
+tvGroup.rotation.y = Math.PI; // Equivalent to 180 degrees
+
+// --- Position the TV ---
+// Adjust the TV's position in the scene
+tvGroup.position.set(0, 5.5, 25); // Elevated slightly and placed back
+
+// Add the TV to the scene
+scene.add(tvGroup);
+
 // ------------------------------------------ Features ------------------------------------------ //
 
 // --- Add Lights ---
