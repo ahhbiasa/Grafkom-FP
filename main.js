@@ -1,3 +1,4 @@
+// ------------------------------------------ Setup Scene ------------------------------------------ //
 // --- Set up Scene ---
 const scene = new THREE.Scene();
 
@@ -11,19 +12,9 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0xadd8e6);  // Set background color to light blue
 document.body.appendChild(renderer.domElement);
 
-/*
-// Load and apply the EXR HDRI as background and environment
-const loader = new THREE.EXRLoader();
-loader.load('abandoned_workshop_4k.exr', (texture) => {
-    texture.mapping = THREE.EquirectangularReflectionMapping;
+// ------------------------------------------ Table ------------------------------------------ //
 
-    // Set the texture as the scene's background and environment
-    scene.background = texture;
-    scene.environment = texture;
-});
-*/
-
-// --- Load the Plane Texture ---
+// --- Load the Table Texture ---
 const textureLoader = new THREE.TextureLoader();
 const TableTexture = textureLoader.load('woodtable.jpg'); // Update the path to your texture file
 
@@ -171,17 +162,35 @@ bar4up.position.set(0, legHeight-0.05, -1.25); // Adjust position to connect leg
 bar4up.rotation.y = Math.PI / 2; // Rotate to align with the legs
 scene.add(bar4up);
 
-// Define geometry and material for the bar under the table
-// const underBarGeometry = new THREE.BoxGeometry(3.5, 0.05, 0.1); // Adjust dimensions based on your table size
-// const underBarMaterial = new THREE.MeshBasicMaterial({ color: 0x333333 }); // Dark color for the bar
+// Group the table components
+const tableGroup = new THREE.Group();
+tableGroup.add(outerTable, coverTable, leg1, leg2, leg3, leg4, bar1, bar2, bar3, bar1up, bar2up, bar3up, bar4up);
 
-// // Create and position the bar
-// const underBar = new THREE.Mesh(underBarGeometry, underBarMaterial);
-// underBar.position.set(0, 2.23, -1.3); // Adjust height (y position) to be close to the ground level, between the legs
-// underBar.rotation.y = 0; // Set rotation if necessary to align with the legs
+// Add the first set to the scene
+scene.add(tableGroup);
 
-// // Add the bar to the scene
-// scene.add(underBar);
+// Function to create and position multiple sets
+const createTableGrid = (rows, cols, spacing) => {
+    const offsetX = (cols - 1) * spacing / 2; // To center the grid horizontally
+    const offsetZ = (rows - 1) * spacing / 2; // To center the grid vertically
+
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+            const tableClone = tableGroup.clone(); // Clone the entire set
+            // Adjust position to center the grid around (0, 0, 0)
+            tableClone.position.set(j * spacing - offsetX, 0, i * spacing - offsetZ); 
+            scene.add(tableClone); // Add to the scene
+        }
+    }
+};
+
+// Create a 3x3 grid of furniture sets with 6 units spacing
+createTableGrid(7, 7, 6);
+
+// ------------------------------------------ Chair ------------------------------------------ //
+
+// Create a group to hold all chair components
+const chairGroup = new THREE.Group();
 
 // Define shared settings and texture
 const extrudeSettings = {
@@ -209,7 +218,7 @@ const seatGeometry = new THREE.ExtrudeGeometry(seatShape, extrudeSettings);
 const seat = new THREE.Mesh(seatGeometry, seatMaterial);
 seat.position.set(-0.665, 1.24, -3.65);
 seat.rotation.x = Math.PI / 2;
-scene.add(seat);
+chairGroup.add(seat);  // Add seat to the chair group
 
 // Chair backrest
 const backrestShape = createRectShape(1.15, 1);
@@ -217,7 +226,7 @@ const backrestGeometry = new THREE.ExtrudeGeometry(backrestShape, { ...extrudeSe
 const backrest = new THREE.Mesh(backrestGeometry, seatMaterial);
 backrest.position.set(-0.575, 1.6, -3.9);
 backrest.rotation.x = Math.PI / -15;
-scene.add(backrest);
+chairGroup.add(backrest);  // Add backrest to the chair group
 
 // Define backrest edge shape and extrusion settings
 const backrestEdgeShape = new THREE.Shape()
@@ -245,7 +254,7 @@ const createBackrestEdge = (x, y, z, rotationX) => {
     const edge = new THREE.Mesh(backrestEdgeGeometry, backrestEdgeMaterial);
     edge.position.set(x, y, z);
     edge.rotation.x = rotationX;
-    scene.add(edge);
+    chairGroup.add(edge);  // Add edge to the chair group
 };
 
 // Create and position the backrest edges
@@ -261,7 +270,7 @@ const createChairLeg = (x, y, z, rotationX) => {
     const leg = new THREE.Mesh(chairLegGeometry, chairLegMaterial);
     leg.position.set(x, y, z);
     leg.rotation.x = rotationX;
-    scene.add(leg);
+    chairGroup.add(leg);  // Add leg to the chair group
 };
 
 // Create and position chair legs
@@ -281,7 +290,7 @@ const createUnderChairConnection = (x, y, z) => {
     const connection = new THREE.Mesh(chairUnderLegGeometry, chairUnderLegMaterial);
     connection.position.set(x, y, z);
     connection.rotation.x = Math.PI / 2;
-    scene.add(connection);
+    chairGroup.add(connection);  // Add connection to the chair group
 };
 
 // Create and position under chair connections
@@ -295,7 +304,7 @@ const createChairLegConnection = (x, y, z) => {
     const connection = new THREE.Mesh(chairLegConnGeometry, chairLegConnMaterial);
     connection.position.set(x, y, z);
     connection.rotation.x = Math.PI / 2;
-    scene.add(connection);
+    chairGroup.add(connection);  // Add connection to the chair group
 };
 
 // Create and position chair leg connections
@@ -308,12 +317,12 @@ const chairsidesupportMaterial = new THREE.MeshLambertMaterial({ color: 0x333333
 const chairsupport1 = new THREE.Mesh(chairsidesupportGeometry, chairsidesupportMaterial);
 chairsupport1.position.set(0.8, 1, -3); 
 chairsupport1.rotation.x = Math.PI / 2;
-scene.add(chairsupport1);
+chairGroup.add(chairsupport1);
 
 const chairsupport2 = new THREE.Mesh(chairsidesupportGeometry, chairsidesupportMaterial);
 chairsupport2.position.set(-0.8, 1, -3); 
 chairsupport2.rotation.x = Math.PI / 2;
-scene.add(chairsupport2);
+chairGroup.add(chairsupport2);
 
 const chairunderfrontlegGeometry = new THREE.BoxGeometry(1.5, 0.1, 0.1);
 const chairunderfrontlegMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
@@ -321,7 +330,7 @@ const chairunderfrontlegMaterial = new THREE.MeshLambertMaterial({ color: 0x3333
 const chairlegconnunder3 = new THREE.Mesh(chairunderfrontlegGeometry, chairunderfrontlegMaterial);
 chairlegconnunder3.position.set(0, 1.2, -2.3); 
 chairlegconnunder3.rotation.x = Math.PI / 2;
-scene.add(chairlegconnunder3);
+chairGroup.add(chairlegconnunder3);
 
 const chairbacksupportGeometry = new THREE.BoxGeometry(0.1, 1.6, 0.1);
 const chairbacksupportMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
@@ -329,31 +338,141 @@ const chairbacksupportMaterial = new THREE.MeshLambertMaterial({ color: 0x333333
 const chairlegconnback1 = new THREE.Mesh(chairbacksupportGeometry, chairbacksupportMaterial);
 chairlegconnback1.position.set(0.7, 2, -3.96); 
 chairlegconnback1.rotation.x = Math.PI / -15;
-scene.add(chairlegconnback1);
+chairGroup.add(chairlegconnback1);
 
 const chairlegconnback2 = new THREE.Mesh(chairbacksupportGeometry, chairbacksupportMaterial);
 chairlegconnback2.position.set(-0.7, 2, -3.96); 
 chairlegconnback2.rotation.x = Math.PI / -15;
-scene.add(chairlegconnback2);
+chairGroup.add(chairlegconnback2);
 
 const chairtopGeometry = new THREE.BoxGeometry(1.5, 0.1, 0.1);
 const chairtopMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
 const chairtop = new THREE.Mesh(chairtopGeometry, chairtopMaterial);
 chairtop.position.set(0, 2.8, -4.13); 
 chairtop.rotation.x = Math.PI / -15;
-scene.add(chairtop);
+chairGroup.add(chairtop);
+
+// Add the chair group to the scene
+scene.add(chairGroup);
+
+// Function to create and position multiple sets
+const createChairGrid = (rows, cols, spacing) => {
+    const offsetX = (cols - 1) * spacing / 2; // To center the grid horizontally
+    const offsetZ = (rows - 1) * spacing / 2; // To center the grid vertically
+
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+            const chairClone = chairGroup.clone(); // Clone the entire set
+            // Adjust position to center the grid around (0, 0, 0)
+            chairClone.position.set(j * spacing - offsetX, 0, i * spacing - offsetZ); 
+            scene.add(chairClone); // Add to the scene
+        }
+    }
+};
+
+// Create a 3x3 grid of furniture sets with 6 units spacing
+createChairGrid(7, 7, 6);
+
+// ------------------------------------------ Floor & Walls ------------------------------------------ //
 
 // --- Load the Plane Texture ---
 const floorTexture = textureLoader.load('laminate_floor_02_diff_4k.jpg'); // Update the path to your texture file
 
 // --- Add a Plane (Floor) ---
-const planeGeometry = new THREE.PlaneGeometry(10, 10);
-const planeMaterial = new THREE.MeshLambertMaterial({ map: floorTexture });
-const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-plane.rotation.x = -Math.PI / 2;  // Rotate plane to be horizontal
-plane.position.y = 0;  // Position plane at y = 0
-scene.add(plane);
+const floorGeometry = new THREE.PlaneGeometry(50, 55);
+const floorMaterial = new THREE.MeshLambertMaterial({ map: floorTexture });
+const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+floor.rotation.x = -Math.PI / 2;  // Rotate plane to be horizontal
+floor.position.y = 0;  // Position plane at y = 0
+scene.add(floor);
 
+// --- Add Cream-Colored Walls ---
+const FBwallGeometry = new THREE.PlaneGeometry(50, 10); // Adjust dimensions as needed
+const FBwallMaterial = new THREE.MeshLambertMaterial({ color: 0xFFFDD0 }); // Cream color (hex code)
+
+const LRwallGeometry = new THREE.PlaneGeometry(55, 10); // Adjust dimensions as needed
+const LRwallMaterial = new THREE.MeshLambertMaterial({ color: 0xFFFDD0 }); // Cream color (hex code)
+
+// Back Wall
+const frontWall = new THREE.Mesh(FBwallGeometry, FBwallMaterial);
+frontWall.position.set(0, 5, -27); // Center it on the Z-axis
+scene.add(frontWall);
+
+// Front Wall
+const backWall = new THREE.Mesh(FBwallGeometry, FBwallMaterial);
+backWall.position.set(0, 5, 27); // Center it on the Z-axis
+backWall.rotation.y = Math.PI; // Rotate to face the opposite direction
+scene.add(backWall);
+
+// Glass Wall
+const leftWall = new THREE.Mesh(LRwallGeometry, LRwallMaterial);
+leftWall.position.set(-25, 5, 0); // Position on the negative X-axis
+leftWall.rotation.y = Math.PI / 2; // Rotate to face inward
+scene.add(leftWall);
+
+// Right Wall
+const rightWall = new THREE.Mesh(LRwallGeometry, LRwallMaterial);
+rightWall.position.set(25, 5, 0); // Position on the positive X-axis
+rightWall.rotation.y = -Math.PI / 2; // Rotate to face inward
+scene.add(rightWall);
+
+// ------------------------------------------ Doors ------------------------------------------ //
+
+// --- Add Glass Doors on Left Wall ---
+const glassDoorGeometry = new THREE.PlaneGeometry(4, 8); // Dimensions of the glass door (width x height)
+const glassDoorMaterial = new THREE.MeshLambertMaterial({
+    color: 0x87CEEB, // Light blue for glass
+    transparent: true, // Enable transparency
+    opacity: 0.4, // Set transparency level (0: fully transparent, 1: opaque)
+});
+
+// Glass Door
+const glassDoor = new THREE.Mesh(glassDoorGeometry, glassDoorMaterial);
+glassDoor.position.set(-24, 4, 0); // Position on the left wall (aligned with its center)
+glassDoor.rotation.y = Math.PI / 2; // Rotate to align with the left wall
+scene.add(glassDoor);
+
+// --- Optional: Add a Door Frame ---
+const doorFrameMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 }); // Brown for the door frame
+const frameThickness = 0.2;
+
+// Top Frame
+const topFrame = new THREE.Mesh(
+    new THREE.BoxGeometry(4.2, frameThickness, frameThickness), 
+    doorFrameMaterial
+);
+topFrame.position.set(-27.5, 8.1, 0); // Above the glass door
+topFrame.rotation.y = Math.PI / 2;
+scene.add(topFrame);
+
+// Bottom Frame
+const bottomFrame = new THREE.Mesh(
+    new THREE.BoxGeometry(4.2, frameThickness, frameThickness), 
+    doorFrameMaterial
+);
+bottomFrame.position.set(-27.5, -0.1, 0); // Below the glass door
+bottomFrame.rotation.y = Math.PI / 2;
+scene.add(bottomFrame);
+
+// Left Frame
+const leftFrame = new THREE.Mesh(
+    new THREE.BoxGeometry(frameThickness, 8.2, frameThickness), 
+    doorFrameMaterial
+);
+leftFrame.position.set(-27.5, 4, -2.1); // Left side of the glass door
+leftFrame.rotation.y = Math.PI / 2;
+scene.add(leftFrame);
+
+// Right Frame
+const rightFrame = new THREE.Mesh(
+    new THREE.BoxGeometry(frameThickness, 8.2, frameThickness), 
+    doorFrameMaterial
+);
+rightFrame.position.set(-27.5, 4, 2.1); // Right side of the glass door
+rightFrame.rotation.y = Math.PI / 2;
+scene.add(rightFrame);
+
+// ------------------------------------------ Features ------------------------------------------ //
 
 // --- Add Lights ---
 const ambientLight = new THREE.AmbientLight(0x404040, 2);
