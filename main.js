@@ -16,109 +16,180 @@ document.body.appendChild(renderer.domElement);
 
 // ------------------------------------------ Table ------------------------------------------ //
 
+// ------------------------------------------ Table ------------------------------------------ //
+
 // --- Load the Table Texture ---
 const textureLoader = new THREE.TextureLoader();
-const tableTexture = textureLoader.load('woodtable.jpg'); // Update the path to your texture file
+const TableTexture = textureLoader.load('woodtable.jpg'); // Update the path to your texture file
 
 // --- Table Dimensions ---
 const legHeight = 2.25;
-const insetMargin = 0.2; // Margin for the inner trapezium
 
-// --- Create Trapezium Shape ---
-const createTrapeziumShape = (outer = true) => {
-  const shape = new THREE.Shape();
-  const margin = outer ? 0 : insetMargin;
-  shape.moveTo(0 + margin, 0 + margin);
-  shape.lineTo(4 - margin, 0 + margin);
-  shape.lineTo(3 - margin, 3 - margin);
-  shape.lineTo(1 + margin, 3 - margin);
-  shape.lineTo(0 + margin, 0 + margin);
-  return shape;
+// --- Create the Trapezium Table Top ---
+var tableshape = new THREE.Shape();
+tableshape.moveTo(0, 0);        // Start at one corner of the trapezium
+tableshape.lineTo(4, 0);        // Draw the bottom edge
+tableshape.lineTo(3, 3);        // Draw the right slanted edge
+tableshape.lineTo(1, 3);        // Draw the top edge
+tableshape.lineTo(0, 0);        // Draw the left slanted edge to close the shape
+
+// Define the inset trapezium (scaled down by a margin) for the inner part of the table
+const insetMargin = 0.2; // The margin between the main shape and the inset
+const inset = new THREE.Path();
+inset.moveTo(insetMargin, insetMargin);                           // Bottom-left (inner)
+inset.lineTo(4 - insetMargin, insetMargin);                       // Bottom-right (inner)
+inset.lineTo(3 - insetMargin, 3 - insetMargin);                   // Top-right (inner)
+inset.lineTo(1 + insetMargin, 3 - insetMargin);                   // Top-left (inner)
+inset.lineTo(insetMargin, insetMargin);                           // Close the inset
+
+// Add the inset as a hole to the main shape
+tableshape.holes.push(inset);
+
+// --- Extrude the Outer Edge Higher (Perimeter) ---
+var tableextrudeSettingsOuter = { 
+    depth: 0.33,         // Slightly raise the perimeter only (outer part)
+    bevelEnabled: false // No bevels for sharp edges
 };
 
-// --- Create Table Components ---
-const createTable = () => {
-  // Create the outer table (raised edge)
-  const outerShape = createTrapeziumShape();
-  const insetShape = createTrapeziumShape(false);
-  outerShape.holes.push(new THREE.Path(insetShape.getPoints()));
-  
-  const outerGeometry = new THREE.ExtrudeGeometry(outerShape, { depth: 0.33, bevelEnabled: false });
-  const outerMaterial = new THREE.MeshLambertMaterial({ map: tableTexture });
-  const outerTable = new THREE.Mesh(outerGeometry, outerMaterial);
-  outerTable.castShadow = true;
+// Create the extruded geometry for the outer part
+const outerGeometry = new THREE.ExtrudeGeometry(tableshape, tableextrudeSettingsOuter);
+const outerMaterial = new THREE.MeshLambertMaterial({ map: TableTexture }); 
+const outerTable = new THREE.Mesh(outerGeometry, outerMaterial);
 
-  // Create the inner flat surface
-  const innerGeometry = new THREE.ExtrudeGeometry(createTrapeziumShape(false), { depth: 0.15, bevelEnabled: false });
-  const innerMaterial = new THREE.MeshLambertMaterial({ map: tableTexture });
-  const innerTable = new THREE.Mesh(innerGeometry, innerMaterial);
-  innerTable.castShadow = true;
+// Position and rotate the outer perimeter (raised edge)
+outerTable.position.set(-2, 2.4, -1.5); // Adjust position to align with the scene
+outerTable.rotation.x = Math.PI / 2;    // Lay flat on the X-axis
+outerTable.castShadow = true;
+scene.add(outerTable);
 
-  // Position the table components
-  [outerTable, innerTable].forEach((part) => {
-    part.position.set(-2, 2.4, -1.5);
-    part.rotation.x = Math.PI / 2;
-    part.castShadow = true;
-  });
+// --- Create the Flat Inner Part of the Table ---
+var coverShape = new THREE.Shape();
+coverShape.moveTo(insetMargin, insetMargin);        // Start at the inner corner
+coverShape.lineTo(4 - insetMargin, insetMargin);    // Draw the bottom edge
+coverShape.lineTo(3 - insetMargin, 3 - insetMargin); // Draw the right slanted edge
+coverShape.lineTo(1 + insetMargin, 3 - insetMargin); // Draw the top edge
+coverShape.lineTo(insetMargin, insetMargin);        // Draw the left slanted edge to close the shape
 
-  // Create table legs
-  const legGeometry = new THREE.BoxGeometry(0.1, legHeight, 0.1);
-  const legMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
-  const legPositions = [
-    [-1.75, -1.25],
-    [1.75, -1.25],
-    [0.75, 1.25],
-    [-0.75, 1.25],
-  ];
-  
-  const legs = legPositions.map(([x, z]) => {
-    const leg = new THREE.Mesh(legGeometry, legMaterial);
-    leg.position.set(x, legHeight / 2, z);
-    leg.castShadow = true;
-    return leg;
-  });
-
-  // Create bars to connect legs
-  const createBar = (dimensions, position, rotation = 0) => {
-    const barGeometry = new THREE.BoxGeometry(...dimensions);
-    const barMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
-    const bar = new THREE.Mesh(barGeometry, barMaterial);
-    bar.position.set(...position);
-    bar.rotation.y = rotation;
-    bar.castShadow = true;
-    return bar;
-  };
-
-  const bars = [
-    createBar([0.1, 0.1, 2.7], [-1.25, 0.05, 0], Math.PI / 8.2),  // Bottom-left to top-left
-    createBar([0.1, 0.1, 1.5], [0, 0.05, 1.25], Math.PI / 2),    // Left to right front
-    createBar([0.1, 0.1, 2.7], [1.25, 0.05, 0], -Math.PI / 8.2), // Bottom-right to top-right
-    createBar([0.1, 0.1, 3.5], [0, legHeight - 0.05, -1.25], Math.PI / 2), // Back bar
-  ];
-
-  // Group components into a single table
-  const tableGroup = new THREE.Group();
-  tableGroup.add(outerTable, innerTable, ...legs, ...bars);
-  return tableGroup;
+// Define a thin extrusion for the cover (just to close the top)
+var coverExtrudeSettings = { 
+    depth: 0.15,         // A thin cover just to close the top without affecting the depth
+    bevelEnabled: false // No bevels for sharp edges
 };
 
-// Add the first table to the scene
-const tableGroup = createTable();
+// Create the extruded geometry for the cover (the thin top layer to close the hole)
+const coverGeometry = new THREE.ExtrudeGeometry(coverShape, coverExtrudeSettings);
+const coverMaterial = new THREE.MeshLambertMaterial({ map: TableTexture }); // Replace with your texture if needed
+const coverTable = new THREE.Mesh(coverGeometry, coverMaterial);
+
+// Position and rotate the cover (thin layer on top)
+coverTable.position.set(-2, 2.4, -1.5); // Same position to align with the scene
+coverTable.rotation.x = Math.PI / 2;    // Lay flat on the X-axis
+coverTable.castShadow = true;
+scene.add(coverTable);
+
+// --- Create the Table Legs ---
+const legGeometry = new THREE.BoxGeometry(0.1, legHeight, 0.1);
+const legMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+
+// Position each leg at the corners of the trapezium tabletop
+const leg1 = new THREE.Mesh(legGeometry, legMaterial);
+leg1.position.set(-1.75, legHeight / 2, -1.25); // Bottom-left corner
+leg1.castShadow = true;
+scene.add(leg1);
+
+const leg2 = leg1.clone();
+leg2.position.set(1.75, legHeight / 2, -1.25); // Bottom-right corner
+leg2.castShadow = true;
+scene.add(leg2);
+
+const leg3 = leg1.clone();
+leg3.position.set(0.75, legHeight / 2, 1.25); // Top-right corner
+leg3.castShadow = true;
+scene.add(leg3);
+
+const leg4 = leg1.clone();
+leg4.position.set(-0.75, legHeight / 2, 1.25); // Top-left corner
+leg4.castShadow = true;
+scene.add(leg4);
+
+// --- Create Bars to Connect the Legs ---
+const barGeometry = new THREE.BoxGeometry(0.1, 0.1, 2.7); // Adjust the length as needed
+const barMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+
+const frontbarGeometry = new THREE.BoxGeometry(0.1, 0.1, 1.5); // Adjust the length as needed
+const frontbarMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+
+const backbarGeometry = new THREE.BoxGeometry(0.1, 0.1, 3.5); // Adjust the length as needed
+const backbarMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+
+// Connect leg1 with leg4
+const bar1 = new THREE.Mesh(barGeometry, barMaterial);
+bar1.position.set(-1.25, 0.05, 0); // Adjust position to connect leg1 and leg4
+bar1.rotation.y = Math.PI / 8.2; // Rotate to align with the legs
+bar1.castShadow = true;
+scene.add(bar1);
+
+// Connect leg4 with leg3
+const bar2 = new THREE.Mesh(frontbarGeometry, frontbarMaterial);
+bar2.position.set(0, 0.05, 1.25); // Adjust position to connect leg1 and leg4
+bar2.rotation.y = Math.PI / 2; // Rotate to align with the legs
+bar2.castShadow = true;
+scene.add(bar2);
+
+// Connect leg3 with leg2
+const bar3 = new THREE.Mesh(barGeometry, barMaterial);
+bar3.position.set(1.25, 0.05, 0); // Adjust position to connect leg1 and leg4
+bar3.rotation.y = Math.PI / -8.2; // Rotate to align with the legs
+bar3.castShadow = true;
+scene.add(bar3);
+
+// bar upperside
+const bar1up = new THREE.Mesh(barGeometry, barMaterial);
+bar1up.position.set(-1.25, legHeight-0.05, 0); // Adjust position to connect leg1 and leg4
+bar1up.rotation.y = Math.PI / 8.2; // Rotate to align with the legs
+bar1up.castShadow = true;
+scene.add(bar1up);
+
+// Connect leg4 with leg3
+const bar2up = new THREE.Mesh(frontbarGeometry, frontbarMaterial);
+bar2up.position.set(0, legHeight-0.05, 1.25); // Adjust position to connect leg1 and leg4
+bar2up.rotation.y = Math.PI / 2; // Rotate to align with the legs
+bar2up.castShadow = true;
+scene.add(bar2up);
+
+// Connect leg3 with leg2
+const bar3up = new THREE.Mesh(barGeometry, barMaterial);
+bar3up.position.set(1.25, legHeight-0.05, 0); // Adjust position to connect leg1 and leg4
+bar3up.rotation.y = Math.PI / -8.2; // Rotate to align with the legs
+bar3up.castShadow = true;
+scene.add(bar3up);
+
+const bar4up = new THREE.Mesh(backbarGeometry, backbarMaterial);
+bar4up.position.set(0, legHeight-0.05, -1.25); // Adjust position to connect leg1 and leg4
+bar4up.rotation.y = Math.PI / 2; // Rotate to align with the legs
+bar4up.castShadow = true;
+scene.add(bar4up);
+
+// Group the table components
+const tableGroup = new THREE.Group();
+tableGroup.add(outerTable, coverTable, leg1, leg2, leg3, leg4, bar1, bar2, bar3, bar1up, bar2up, bar3up, bar4up);
+
+// Add the first set to the scene
 scene.add(tableGroup);
 
-// --- Create and Position Multiple Tables ---
+// Function to create and position multiple sets
 const createTableGrid = (rows, cols, spacing) => {
-  const offsetX = (cols - 1) * spacing / 2;
-  const offsetZ = (rows - 1) * spacing / 2;
+    const offsetX = (cols - 1) * spacing / 2; // To center the grid horizontally
+    const offsetZ = (rows - 1) * spacing / 2; // To center the grid vertically
 
-  for (let i = 0; i < rows; i++) {
-    for (let j = 0; j < cols; j++) {
-      const tableClone = tableGroup.clone();
-      tableClone.position.set(j * spacing - offsetX, 0, i * spacing - offsetZ);
-      tableClone.castShadow = true;
-      scene.add(tableClone);
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+            const tableClone = tableGroup.clone(); // Clone the entire set
+            // Adjust position to center the grid around (0, 0, 0)
+            tableClone.position.set(j * spacing - offsetX, 0, i * spacing - offsetZ); 
+            scene.add(tableClone); // Add to the scene
+        }
     }
-  }
 };
 
 // Create a 3x3 grid of furniture sets with 6 units spacing
